@@ -1,0 +1,16 @@
+<h3>Dashboard</h3>
+
+<table>
+    <tr>
+        <th>Product Name</th>
+        <th>Product Price</th>
+        <th>Product Qty</th>
+    </tr>
+    <tr *ngFor="let mdata of productData">
+        <td>{{mdata.PdtName}}</td>
+        <td>{{mdata.PdtPrice}}</td>
+        <td>{{mdata.PdtQty}}</td>
+        <td><button (click)="edit(mdata._id)">Update</button></td>
+        <td><button (click)="delete(mdata.PdtName)" >Delete</button></td>
+    </tr>
+</table>

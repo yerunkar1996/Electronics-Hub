@@ -1,0 +1,12 @@
+form
+{
+    color: white;
+    font-size: large;
+    width: 350px;
+    margin:auto;
+    padding: 20px;
+}
+.sao
+{
+  background: linear-gradient(135deg, pink, blue,yellow,violet);
+}

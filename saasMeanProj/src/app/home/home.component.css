@@ -1,0 +1,11 @@
+.carso img {
+  height: 70vh;
+}
+.card img{
+  width: 25vw;
+  height: 28vh;
+}
+.card{
+  /* border: 2px solid black; */
+  border-collapse: separate;
+}

@@ -1,0 +1,49 @@
+show databases;
+
+create database SaasDb;
+
+use SaasDb;
+
+create table CustmerDetails(srNo int(50), Name varchar(100), mobieNo bigint(100), address varchar(100));
+
+show tables;
+
+-- Create 
+insert into CustmerDetails values(1, "Deep", 8745963215, "Mumbai");
+
+-- Read
+select * from custmerDetails;
+
+insert into CustmerDetails values(2,"Samson",78965412547, "Andheri"),
+				(3, "Ankit", 8965412478, "Kandivali"),
+                                (4,"Vishal", 9654125475, "Ghatkopar");
+                                
+desc CustmerDetails;
+
+-- delete
+delete from CustmerDetails where Name="Deep";
+
+-- Update
+update CustmerDetails set address = "Mira road" where Name="Deep";
+
+-- delete table
+-- drop table CustmerDetails;
+
+-- delete database
+-- drop database saasdb;
+
+select * from custmerDetails;
+
+select Name from custmerDetails;
+
+select * from custmerDetails where srNo=2; 
+ -- Password search
+select mobieNo from custmerDetails where Name="Ankit"; 
+
+-- Decending
+select Name from custmerDetails order by -1;
+
+-- Ascending
+select Name from custmerDetails order by 1;
+
+select * from custmerDetails limit 2;

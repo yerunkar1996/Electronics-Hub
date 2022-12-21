@@ -1,0 +1,326 @@
+1)model.js  Schema
+const mongoose = require("mongoose")
+let ProductModel = new mongoose.Schema({
+    _id: mongoose.Schema.Types.ObjectId,
+    PdtName : String,
+    PdtPrice : String,
+    PdtQty : String
+})
+module.exports = mongoose.model("products",ProductModel)
+
+
+2)index.js  post api
+//npm install express
+//npm install -g  nodemon --save-dev
+const express = require('express')
+const app = express()
+//npm install cors
+const cors = require('cors')
+app.use(cors())
+//npm install body-parser  -- to get data from body backend/ form in Json format
+const bodyParser = require("body-parser")
+const jsonParser = bodyParser.json();
+//Install mongoose for connectivity
+const mongoose = require("mongoose")
+//connection to database
+mongoose.connect("mongodb+srv://root:root@cluster0.rjiuf.mongodb.net/saas?retryWrites=true&w=majority",{
+    useNewUrlParser: true,
+    UseUnifiedTopology: true
+}).then(()=>{
+    console.log("MongoDB connected!")
+}).catch((err) =>{
+    console.log(err)
+})
+// app.get(route,callback)
+app.get("/",(req,res)=>{
+    res.send("Hii Backend server")
+})
+app.listen(3000, ()=>{
+   console.log("Server listening!")
+})
+
+
+
+
+****************************************GET API********************************************
+1)index.js
+//model
+let productModel = require("./model/productmodel")
+
+//read Data - GET api
+app.get("/getProduct",(req,res)=>{
+    productModel.find().then((mdbData)=>{
+        console.log(mdbData)
+        res.send(mdbData)
+    })
+})
+
+
+3)app.module.ts
+import { HttpClientModule } from '@angular/common/http';
+  imports: [
+    HttpClientModule,
+]
+
+
+3) service.ts
+import { HttpClient } from '@angular/common/http';
+ constructor(private http: HttpClient) { }
+
+  // Method for get api
+  ongetDbData(){
+    return this.http.get("http://localhost:3000/getProduct")
+  }
+
+
+4)dashboard.component.ts
+constructor(private serv : ServiceService){  }
+ngOnInit(){
+    this.getData()
+  }
+  productData:any
+  getData(){
+    this.serv.ongetDbData().subscribe((mdbdata)=>{
+    console.log(mdbdata)
+    this.productData  = mdbdata
+    })
+  }
+
+
+5)dashboard.component.html
+<table>
+    <tr>
+        <th>Product Name</th>
+        <th>Product Price</th>
+        <th>Product Qty</th>
+    </tr>
+    <tr *ngFor="let mdata of productData">
+        <td>{{mdata.PdtName}}</td>
+        <td>{{mdata.PdtPrice}}</td>
+        <td>{{mdata.PdtQty}}</td>
+    </tr>
+</table>
+
+
+
+
+
+****************************************POST API********************************************
+1) Index.js
+//Add data POST API  -- body
+app.post("/addProd",jsonParser,(req,res)=>{
+    let ProductData = new productModel({
+    _id: new mongoose.Types.ObjectId,
+    PdtName : req.body.prodName,
+    PdtPrice : req.body.prodPrice,
+    PdtQty : req.body.prodQty
+    })
+
+    ProductData.save().then((mdbData)=>{
+        console.log(mdbData)
+        res.send(mdbData)
+    }).catch((err)=>{
+        console.log(err)
+    })
+})
+
+
+
+2)service.ts
+// Method for post api
+  postUrl = "http://localhost:3000/addProd"
+  addDataToDb(FormData:any){
+    return this.http.post(this.postUrl,FormData)
+  }
+
+
+3)app.module.ts
+  imports: [
+    FormsModule,
+    ReactiveFormsModule
+]
+
+
+4)register.component.ts
+export class RegisterComponent {
+  constructor(private serv: ServiceService){}
+  regForm = new FormGroup({
+    prodName : new FormControl(""),
+    prodPrice : new FormControl(""),
+    prodQty : new FormControl("")
+  })
+
+  addFormData(){
+    this.serv.addDataToDb(this.regForm.value).subscribe((mdbdata)=>{
+      console.log(mdbdata)
+      alert("Data Added Successfully!")
+    })
+  }
+}
+
+
+5)register.component.html
+<form [formGroup]="regForm"  (ngSubmit)="addFormData()">
+    <h2>Registration Form</h2>
+    <div>
+        <input type="text" placeholder="enter Product Name" formControlName="prodName">
+    </div> <br>
+
+    <div>
+        <input type="number" placeholder="enter Product Price" formControlName="prodPrice">
+    </div><br>
+
+    <div>
+        <input type="number" placeholder="enter Product Quantity" formControlName="prodQty">
+    </div><br>
+
+    <button>Submit</button>
+</form>
+
+
+
+
+
+****************************************Delete API********************************************
+1)index.js
+app.delete("/deleteProduct/:prodName",(req,res)=>{
+    productName = req.params.prodName
+    productModel.deleteOne({PdtName : productName}).then((mdbData)=>{
+        console.log(mdbData)
+        res.send(`${productName} deleted from mongodb`)
+    })
+})
+
+
+2)service.ts
+ // Method for delete api
+  deleteUrl = "http://localhost:3000/deleteProduct"
+  deleteDatafromDb(prodName:any){
+    return this.http.delete(`${this.deleteUrl}/${prodName}`)
+  }
+
+
+3)dashboard.component.html
+<td><button (click)="delete(mdata.PdtName)" >Delete</button></td>
+
+
+4)dashboard.component.ts
+delete(prodName:any){
+    let ch = prompt("Do you want to delete? Yes/No")
+    if(ch == "Yes"){
+      this.serv.deleteDatafromDb(prodName).subscribe((mdbData)=>{
+        console.log(mdbData)
+      })
+      alert(`${prodName} is deleted!`)
+      location.reload()
+    }
+    else{
+      location.reload()
+    }
+  }
+
+
+
+
+
+****************************************Update API********************************************
+1) index.js
+app.put("/updateProd/:id",jsonParser,(req,res)=>{
+    productModel.updateOne({_id : req.params.id}
+    ,{
+        $set:{
+            PdtName : req.body.prodnm,
+            PdtPrice : req.body.prodpr,
+            PdtQty : req.body.prodqt
+        }}
+        ).then((mdbData)=>{
+        console.log(mdbData)
+        res.send(mdbData)
+    }).catch((err)=>{
+        console.log(err)
+    })
+})
+
+
+
+2)service.ts
+  // Method for put api
+  putUrl = "http://localhost:3000/updateProd"
+  updateDatafromDb(formData:any,id:any){
+    return this.http.put(`${this.putUrl}/${id}`,formData)
+  }
+
+
+3)dashboard.component.html
+<td><button (click)="edit(mdata._id)">Update</button></td>
+
+
+4) dashboard.component.ts
+
+constructor(private serv : ServiceService, private router: Router){  }
+
+ edit(id:any){
+    this.router.navigate(["/update", id])
+  }
+
+
+5)app-routing.module.ts
+const routes: Routes = [
+  {
+    path:"update/:id", component:UpdateComponent
+  }
+]
+
+6)update.component.ts
+constructor(private activateRouter : ActivatedRoute, private serv :ServiceService){}
+
+  objectId:any
+  ngOnInit(){
+    this.activateRouter.params.subscribe((eid)=>{
+      this.objectId = eid['id'];
+      console.log(this.objectId)
+    })
+  }
+  updateForm = new FormGroup({
+    prodName : new FormControl(""),
+    prodPrice : new FormControl(""),
+    prodQty : new FormControl("")
+  })
+
+  update(){
+    this.serv.updateDatafromDb(this.updateForm.value,this.objectId).subscribe((mdata)=>{
+      console.log(mdata)
+      alert("Data Updated!")
+    })
+  }
+
+7) update.component.html
+<h2>Update Date </h2>
+<form [formGroup]="updateForm" (ngSubmit)="update()">
+    <div>
+        <input type="text" placeholder="enter Product Name" formControlName="prodName">
+    </div> <br>
+
+    <div>
+        <input type="number" placeholder="enter Product Price" formControlName="prodPrice">
+    </div><br>
+
+    <div>
+        <input type="number" placeholder="enter Product Quantity" formControlName="prodQty">
+    </div><br>
+
+    <button>Submit</button>
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,19 @@
+<div class="sao">
+  <form [formGroup]="regForm"  (ngSubmit)="addFormData()">
+    <h2>Registration Form</h2>
+    <div>
+        <input type="text" placeholder="enter Product Name" formControlName="prodName">
+    </div> <br>
+
+    <div>
+        <input type="number" placeholder="enter Product Price" formControlName="prodPrice">
+    </div><br>
+
+    <div>
+        <input type="number" placeholder="enter Product Quantity" formControlName="prodQty">
+    </div><br>
+
+    <button>Submit</button>
+</form>
+
+</div>
